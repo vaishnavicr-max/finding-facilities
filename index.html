@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Region Database — Facility Finder &amp; Map Overview</title>
+  <link rel="stylesheet" href="https://js.arcgis.com/4.29/esri/themes/dark/main.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="app">
+    <aside id="sidebar">
+      <div id="sidebar-header">
+        <h1>Region Database</h1>
+        <p class="subtitle">Facility Finder &amp; Map Overview</p>
+      </div>
+
+      <div id="search-section">
+        <div id="search-row">
+          <input id="search-input" type="text" placeholder="ZIP code or city name…" autocomplete="off" />
+          <button id="search-btn" title="Search">&#9906;</button>
+        </div>
+        <div id="radius-row">
+          <label for="radius-slider">Radius</label>
+          <input id="radius-slider" type="range" min="1" max="20" value="5" step="1" />
+          <input id="radius-input" type="number" min="1" max="20" value="5" />
+          <span class="radius-unit">km</span>
+        </div>
+      </div>
+
+      <div id="stats-section">
+        <h2>Facilities Dashboard</h2>
+        <div id="stats-grid">
+          <div class="stat-card" data-cat="schools">
+            <span class="stat-count" id="stat-schools">—</span>
+            <span class="stat-label">Schools</span>
+          </div>
+          <div class="stat-card" data-cat="colleges">
+            <span class="stat-count" id="stat-colleges">—</span>
+            <span class="stat-label">Colleges</span>
+          </div>
+          <div class="stat-card" data-cat="hospitals">
+            <span class="stat-count" id="stat-hospitals">—</span>
+            <span class="stat-label">Hospitals</span>
+          </div>
+          <div class="stat-card" data-cat="nursing">
+            <span class="stat-count" id="stat-nursing">—</span>
+            <span class="stat-label">Nursing</span>
+          </div>
+          <div class="stat-card" data-cat="cinemas">
+            <span class="stat-count" id="stat-cinemas">—</span>
+            <span class="stat-label">Cinemas</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="search-warn" aria-live="polite"></div>
+
+      <div id="layers-section">
+        <h2>Layers</h2>
+        <div class="layer-row">
+          <span class="layer-dot" style="background:var(--c-schools)"></span>
+          <span class="layer-name">Schools</span>
+          <label class="toggle"><input type="checkbox" checked data-cat="schools"><span class="slider"></span></label>
+        </div>
+        <div class="layer-row">
+          <span class="layer-dot" style="background:var(--c-colleges)"></span>
+          <span class="layer-name">Colleges</span>
+          <label class="toggle"><input type="checkbox" checked data-cat="colleges"><span class="slider"></span></label>
+        </div>
+        <div class="layer-row">
+          <span class="layer-dot" style="background:var(--c-hospitals)"></span>
+          <span class="layer-name">Hospitals</span>
+          <label class="toggle"><input type="checkbox" checked data-cat="hospitals"><span class="slider"></span></label>
+        </div>
+        <div class="layer-row">
+          <span class="layer-dot" style="background:var(--c-nursing)"></span>
+          <span class="layer-name">Nursing Homes</span>
+          <label class="toggle"><input type="checkbox" checked data-cat="nursing"><span class="slider"></span></label>
+        </div>
+        <div class="layer-row">
+          <span class="layer-dot" style="background:var(--c-cinemas)"></span>
+          <span class="layer-name">Cinemas</span>
+          <label class="toggle"><input type="checkbox" checked data-cat="cinemas"><span class="slider"></span></label>
+        </div>
+      </div>
+
+      <div id="list-section">
+        <div id="list-header">
+          <h2>Facilities <span id="list-total"></span></h2>
+          <button id="export-btn">Export Excel</button>
+        </div>
+        <div id="filter-row">
+          <input id="facility-filter" type="text" placeholder="Search facilities…" autocomplete="off" />
+          <button id="filter-clear" title="Clear">✕</button>
+        </div>
+        <div id="facility-list"></div>
+      </div>
+    </aside>
+
+    <div id="map-container">
+      <div id="viewDiv"></div>
+    </div>
+  </div>
+
+  <!-- Export options modal -->
+  <div id="export-modal" class="modal-overlay hidden">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="export-modal-title">
+      <h3 id="export-modal-title">Export to Excel</h3>
+      <p class="modal-sub">Select categories to include</p>
+
+      <label class="modal-row modal-select-all">
+        <input type="checkbox" id="export-all" checked />
+        <span>All Categories</span>
+      </label>
+
+      <div class="modal-divider"></div>
+
+      <div id="export-cat-list">
+        <label class="modal-row">
+          <input type="checkbox" data-export-cat="schools" checked />
+          <span class="modal-dot" style="background:var(--c-schools)"></span>Schools
+        </label>
+        <label class="modal-row">
+          <input type="checkbox" data-export-cat="colleges" checked />
+          <span class="modal-dot" style="background:var(--c-colleges)"></span>Colleges
+        </label>
+        <label class="modal-row">
+          <input type="checkbox" data-export-cat="hospitals" checked />
+          <span class="modal-dot" style="background:var(--c-hospitals)"></span>Hospitals
+        </label>
+        <label class="modal-row">
+          <input type="checkbox" data-export-cat="nursing" checked />
+          <span class="modal-dot" style="background:var(--c-nursing)"></span>Nursing Homes
+        </label>
+        <label class="modal-row">
+          <input type="checkbox" data-export-cat="cinemas" checked />
+          <span class="modal-dot" style="background:var(--c-cinemas)"></span>Cinemas
+        </label>
+      </div>
+
+      <div class="modal-actions">
+        <button id="export-cancel" class="btn-ghost">Cancel</button>
+        <button id="export-confirm" class="btn-primary">Download</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="spinner-overlay" class="hidden">
+    <div class="spinner"></div>
+    <p id="spinner-msg">Searching…</p>
+  </div>
+
+  <div id="toast" class="toast" role="alert" aria-live="assertive"></div>
+
+  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+  <script src="https://js.arcgis.com/4.29/"></script>
+  <script src="app.js"></script>
+</body>
+</html>
